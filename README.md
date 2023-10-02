@@ -1,5 +1,8 @@
 # Pathfinder
 
+[![Latest Stable Version](https://poser.pugx.org/norvica/pathfinder/v/stable.png)](https://packagist.org/packages/norvica/pathfinder)
+[![Checks](https://github.com/norvica/pathfinder/actions/workflows/checks.yml/badge.svg)](https://github.com/norvica/pathfinder/actions/workflows/checks.yml)
+
 **Pathfinder** is a lean and extremely fast PHP router built on the [Trie](https://en.wikipedia.org/wiki/Trie) (or
 prefix tree) search algorithm. Its design enables quick lookups and is optimized for high performance.
 
