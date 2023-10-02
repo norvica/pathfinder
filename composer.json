@@ -2,7 +2,7 @@
     "name": "norvica/pathfinder",
     "description": "Fast PHP router.",
     "type": "library",
-    "license": "BSD 3-Clause License",
+    "license": "BSD-3-Clause",
     "keywords": [
         "php",
         "router",
