@@ -1,0 +1,35 @@
+on: [ pull_request, push ]
+
+name: "Checks"
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    name: Tests
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        php-version:
+          - 8.1
+          - 8.2
+          - 8.3
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "${{ matrix.php-version }}"
+
+      - name: Install dependencies
+        uses: php-actions/composer@v6
+
+      - name: Run tests
+        run: vendor/bin/phpunit --testdox
