@@ -1,4 +1,12 @@
-on: [ pull_request, push ]
+on:
+  push:
+    branches:
+      - '**'
+    tags-ignore:
+      - '**'
+  pull_request:
+    branches:
+      - '**'
 
 name: "Checks"
 
