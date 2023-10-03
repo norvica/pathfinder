@@ -128,12 +128,13 @@ final class Pathfinder
 
     public function match(string $method, string $path): array
     {
+        $method = strtoupper($method);
         if (isset($this->static[$path])) {
             if (!isset($this->static[$path][self::HANDLERS][$method])) {
-                return self::result(self::METHOD_NOT_ALLOWED);
+                return [self::METHOD_NOT_ALLOWED, []];
             }
 
-            return self::result($this->static[$path][self::HANDLERS][$method]);
+            return [$this->static[$path][self::HANDLERS][$method], []];
         }
 
         $params = [];
@@ -176,22 +177,22 @@ final class Pathfinder
             }
 
             if (!$found) {
-                return self::result(self::NOT_FOUND);
+                return [self::NOT_FOUND, []];
             }
         }
 
         if ($node[self::HANDLERS]) {
             if (!isset($node[self::HANDLERS][$method])) {
-                return self::result(self::METHOD_NOT_ALLOWED);
+                return [self::METHOD_NOT_ALLOWED, []];
             }
 
-            return self::result(
+            return [
                 $node[self::HANDLERS][$method],
                 $params,
-            );
+            ];
         }
 
-        return self::result(self::NOT_FOUND);
+        return [self::NOT_FOUND, []];
     }
 
     public function tree(): array
@@ -200,11 +201,6 @@ final class Pathfinder
             $this->static,
             $this->dynamic,
         ];
-    }
-
-    private static function result(string|int $handler, array $params = []): array
-    {
-        return [$handler, $params];
     }
 
     private static function static(): array
