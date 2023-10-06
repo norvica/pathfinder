@@ -35,6 +35,7 @@ final class Pathfinder
         'OPTIONS',
         'TRACE',
         'PATCH',
+        '*',
     ];
 
     private array $static;
@@ -44,6 +45,41 @@ final class Pathfinder
     {
         $this->static = $cached[0] ?? [];
         $this->dynamic = $cached[1] ?? self::dynamic();
+    }
+
+    public function get(string $pattern, string $handler): void
+    {
+        $this->route('GET', $pattern, $handler);
+    }
+
+    public function post(string $pattern, string $handler): void
+    {
+        $this->route('POST', $pattern, $handler);
+    }
+
+    public function put(string $pattern, string $handler): void
+    {
+        $this->route('PUT', $pattern, $handler);
+    }
+
+    public function delete(string $pattern, string $handler): void
+    {
+        $this->route('DELETE', $pattern, $handler);
+    }
+
+    public function options(string $pattern, string $handler): void
+    {
+        $this->route('OPTIONS', $pattern, $handler);
+    }
+
+    public function patch(string $pattern, string $handler): void
+    {
+        $this->route('PATCH', $pattern, $handler);
+    }
+
+    public function any(string $pattern, string $handler): void
+    {
+        $this->route('*', $pattern, $handler);
     }
 
     public function route(string $method, string $pattern, string $handler): void
@@ -101,36 +137,16 @@ final class Pathfinder
         $node[self::HANDLERS][$method] = $handler;
     }
 
-    public function get(string $pattern, string $handler): void
-    {
-        $this->route('GET', $pattern, $handler);
-    }
-
-    public function post(string $pattern, string $handler): void
-    {
-        $this->route('POST', $pattern, $handler);
-    }
-
-    public function put(string $pattern, string $handler): void
-    {
-        $this->route('PUT', $pattern, $handler);
-    }
-
-    public function patch(string $pattern, string $handler): void
-    {
-        $this->route('PATCH', $pattern, $handler);
-    }
-
-    public function delete(string $pattern, string $handler): void
-    {
-        $this->route('DELETE', $pattern, $handler);
-    }
-
     public function match(string $method, string $path): array
     {
         $method = strtoupper($method);
         if (isset($this->static[$path])) {
             if (!isset($this->static[$path][self::HANDLERS][$method])) {
+                // any
+                if (isset($this->static[$path][self::HANDLERS]['*'])) {
+                    return [$this->static[$path][self::HANDLERS]['*'], []];
+                }
+
                 return [self::METHOD_NOT_ALLOWED, []];
             }
 
@@ -183,6 +199,14 @@ final class Pathfinder
 
         if ($node[self::HANDLERS]) {
             if (!isset($node[self::HANDLERS][$method])) {
+                // any
+                if (isset($node[self::HANDLERS]['*'])) {
+                    return [
+                        $node[self::HANDLERS]['*'],
+                        $params,
+                    ];
+                }
+
                 return [self::METHOD_NOT_ALLOWED, []];
             }
 

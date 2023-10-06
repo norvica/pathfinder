@@ -36,6 +36,7 @@ final class PathfinderTest extends TestCase
         $this->pathfinder->get('/games/{slug:[\w-]+}', 'c1ee1cc6381d590c');
         $this->pathfinder->get('/games/reviews', '69d82a5755545ceb');
         $this->pathfinder->post('/games/reviews', 'a08cd78c88bea630');
+        $this->pathfinder->any('/', '1c97b75828e480bd');
     }
 
     public static function dataProvider(): Generator
@@ -54,6 +55,8 @@ final class PathfinderTest extends TestCase
         yield 'dynamic route "GET games" with slug parameter' => ['GET', '/games/pac-man', 'c1ee1cc6381d590c', ['slug' => 'pac-man']];
         yield 'static route "GET games"' => ['GET', '/games/reviews', '69d82a5755545ceb', []];
         yield 'static route "POST games"' => ['POST', '/games/reviews', 'a08cd78c88bea630', []];
+        yield 'static route with wildcard method with "OPTIONS"' => ['OPTIONS', '/', '1c97b75828e480bd', []];
+        yield 'static route with wildcard method with "GET"' => ['GET', '/', '1c97b75828e480bd', []];
     }
 
     /**
