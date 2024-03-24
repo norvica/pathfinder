@@ -12,43 +12,49 @@ prefix tree) search algorithm. Its design enables quick lookups and is optimized
 composer require norvica/pathfinder
 ```
 
-Requires PHP `^8.1`.
-
 ## Use
 
-To get started, import the library and create a Pathfinder instance:
+If you'd like to use the lower-level `Pathfinder` class directly, please refer to the 
+[appropriate documentation section](./doc/pathfinder.md#use). The `Router` class provides a convenient wrapper and performs
+matching against PSR-7 `ServerRequestInterface` objects.
+
+If you'd like to use a more low level class `Pathfinder` please refer to an 
+[appropriate documentation section](./doc/pathfinder.md#use). `Router` class provides a convenience wrapper and is matching
+against PSR-7 `ServerRequestInterface`.
+
+To get started, create a `Router` instance, define your routes, and then match your incoming request:
 
 ```php
-use Norvica\Pathfinder\Pathfinder;
+use Norvica\Pathfinder\Router;
 
 // Create a Pathfinder instance
-$pathfinder = new Pathfinder();
+$router = new Router();
 
 // Define your routes using closures
-$definitions = static function(Pathfinder $pathfinder) {
-    $pathfinder->route('GET', '/orders', 'get_orders_handler');
-    $pathfinder->route('POST', '/orders', 'post_order_handler');
-    $pathfinder->route('GET', '/orders/{id}', 'get_order_handler');
+$definitions = static function(Router $router) {
+    $router->route('POST', '/orders', OrderPostController::class);
+    $router->route('GET', '/orders/{id}', [OrderGetController::class, '__invoke']);
 };
 
 // Load your route definitions
-$definitions($pathfinder);
+$definitions($router);
 
-// Determine the request method and URI
-$method = $_SERVER['REQUEST_METHOD'];
-$uri = $_SERVER['REQUEST_URI'];
+// NOTICE: This is an example of request instantiation.
+// Use the library of your choice that instantiates PSR-7 request
+// (e.g. https://github.com/guzzle/psr7).
+$request = ServerRequest::fromGlobals();
 
-// Split URI from query string
-[$uri] = explode('?', $uri);
-
-// Decode URI
-$uri = rawurldecode($uri);
-
-[$handler, $parameters] = $pathfinder->match($method, $uri);
-match ($handler) {
-    404 => /* handle 404 */,
-    405 => /* handle 405 */,
-};
+// Handling a request
+try {
+    $route = $router->match($request);
+    $handler = $route->handler();
+    $parameters  = $route->parameters();
+    // [...] execute matched handler
+} catch (\Norvica\Pathfinder\Exception\NotFound $e) {
+    // [...] handle 404
+} catch (\Norvica\Pathfinder\Exception\MethodNotAllowed $e) {
+    // [...] handle 405
+}
 ```
 
 ## Routes Definition
@@ -58,12 +64,7 @@ match ($handler) {
 A basic route is a simple, static path:
 
 ```php
-// Define
-$pathfinder->route('GET', '/orders', 'get_orders_handler');
-
-// Match
-[$handler, $parameters] = $pathfinder->match('GET', '/orders');
-// ['get_orders_handler', []]
+$router->route('GET', '/orders', OrderListController::class);
 ```
 
 ### Parameterized Route
@@ -71,16 +72,7 @@ $pathfinder->route('GET', '/orders', 'get_orders_handler');
 To include parameters like a username or ID in the URL:
 
 ```php
-// Define
-$pathfinder->route('GET', '/orders/{id}', 'get_order_handler');
-
-// Match
-[$handler, $parameters] = $pathfinder->match('GET', '/orders/9999');
-// ['get_order_handler', ['id' => '9999']]
-
-// Match
-[$handler, $parameters] = $pathfinder->match('GET', '/orders/abcd');
-// ['get_order_handler', ['id' => 'abcd']]
+$router->route('GET', '/orders/{id}', OrderGetController::class);
 ```
 
 ### Regular Expression Constraints
@@ -88,16 +80,7 @@ $pathfinder->route('GET', '/orders/{id}', 'get_order_handler');
 You can add regex constraints to your parameters:
 
 ```php
-// Define
-$pathfinder->route('GET', '/orders/{id:[0-9]+}', 'get_order_handler');
-
-// Match
-[$handler, $parameters] = $pathfinder->match('GET', '/orders/9999');
-// ['get_order_handler', ['id' => '9999']]
-
-// Mismatch
-[$handler, $parameters] = $pathfinder->match('GET', '/orders/abcd');
-// [404, []]
+$router->route('GET', '/orders/{id:[0-9]+}', OrderGetController::class);
 ```
 
 ### Optional Parameters
@@ -105,16 +88,7 @@ $pathfinder->route('GET', '/orders/{id:[0-9]+}', 'get_order_handler');
 You can define routes with optional segments:
 
 ```php
-// Define
-$pathfinder->route('GET', '/articles/{id:[0-9]+}[/{slug}]', 'get_article_handler');
-
-// Match
-[$handler, $parameters] = $pathfinder->match('GET', '/articles/9999/my-article');
-// ['get_article_handler', ['id' => '9999', 'slug' => 'my-article']]
-
-// Match
-[$handler, $parameters] = $pathfinder->match('GET', '/articles/9999');
-// ['get_article_handler', ['id' => '9999']]
+$router->route('GET', '/articles/{id:[0-9]+}[/{slug}]', ArticleGetController::class);
 ```
 
 ### Complex Routes
@@ -122,12 +96,7 @@ $pathfinder->route('GET', '/articles/{id:[0-9]+}[/{slug}]', 'get_article_handler
 You can also define more complex routes with multiple parameters:
 
 ```php
-// Define
-$pathfinder->route('GET', '/course/{year:[0-9]{4}}/{subject:[a-z]+}/{code:[0-9a-f]{4}}', 'get_course_handler');
-
-// Match
-[$handler, $parameters] = $pathfinder->match('GET', '/course/2023/math/34cd');
-// ['get_course_handler', ['year' => '2023', 'subject' => 'math', 'code' => '34cd']]
+$router->route('GET', '/course/{year:[0-9]{4}}/{subject:[a-z]+}/{code:[0-9a-f]{4}}', CourseGetController::class);
 ```
 
 ### Enumerated Parameters
@@ -135,24 +104,20 @@ $pathfinder->route('GET', '/course/{year:[0-9]{4}}/{subject:[a-z]+}/{code:[0-9a-
 For when you have a specific set of acceptable parameter values:
 
 ```php
-// Define
-$pathfinder->route('GET', '/{language:en|de}/profile', 'get_profile_handler');
-
-// Match
-[$handler, $parameters] = $pathfinder->match('GET', '/en/profile');
-// ['get_profile_handler', ['language' => 'en']]
+$router->route('GET', '/{language:en|de}/profile', ProfileGetController::class);
 ```
 
 ### Shortcuts
 
-For convenience, **Pathfinder** offers shortcut methods for common HTTP request methods.
+For convenience, `Router` offers shortcut methods for common HTTP request methods.
 
 ```php
-$pathfinder->get('/orders', 'get_orders_handler');
-$pathfinder->post('/orders', 'post_orders_handler');
-$pathfinder->put('/orders/{id}', 'put_order_handler');
-$pathfinder->patch('/orders/{id}', 'patch_order_handler');
-$pathfinder->delete('/orders/{id}', 'delete_order_handler');
+$router->get('/orders', 'get_orders_handler');
+$router->post('/orders', 'post_orders_handler');
+$router->put('/orders/{id}', 'put_order_handler');
+$router->patch('/orders/{id}', 'patch_order_handler');
+$router->delete('/orders/{id}', 'delete_order_handler');
+// ...
 ```
 
 You can use these shortcut methods just like you would use the route method, but without the need to specify the HTTP

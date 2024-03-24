@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Tests\Norvica\Pathfinder;
 
+use Generator;
 use Norvica\Pathfinder\Pathfinder;
 use PHPUnit\Framework\TestCase;
 
@@ -219,7 +220,7 @@ final class MiscellaneousTest extends TestCase
         $this->pathfinder->route('POST', '/api/workflow/{workflowId:\d+}/stages/{stageId:\d+}/tasks/{taskId:\d+}/subtasks/{subtaskId:\d+}/complete', 'r_193');
     }
 
-    public static function dataProvider(): \Generator
+    public static function dataProvider(): Generator
     {
         yield 'r_0' => ['GET', '/users', ['r_0', []]];
         yield 'r_1' => ['GET', '/users/8b52bb', ['r_1', ['username' => '8b52bb']]];
