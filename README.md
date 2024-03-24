@@ -123,6 +123,11 @@ $router->delete('/orders/{id}', 'delete_order_handler');
 You can use these shortcut methods just like you would use the route method, but without the need to specify the HTTP
 method as the first argument.
 
+> [!IMPORTANT]
+> The router only facilitates matching `HEAD` requests to `GET` routes when a specific `HEAD` handler is not found.
+> Developers must explicitly ensure that `HEAD` method calls always return 
+> [empty response bodies](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/HEAD).
+
 ## Tests
 
 Run the PHPUnit tests to ensure that the package is functioning as expected:
