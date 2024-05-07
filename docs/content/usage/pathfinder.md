@@ -1,7 +1,15 @@
-# Utilizing Pathfinder Class
-
-This part of the documentation describes the usage of the `Pathfinder` class. If you'd prefer to use the convenient `Router`
-wrapper, please refer to the [appropriate documentation section](../README.md#use).
+---
+title: "Using Pathfinder Directly"
+description: ""
+date: 2024-05-06T19:33:08+02:00
+lastmod: 2024-05-06T19:33:08+02:00
+draft: false
+seo:
+  title: "" # custom title (optional)
+  description: "" # custom description (recommended)
+  canonical: "" # custom canonical URL (optional)
+  noindex: false # false (default) or true
+---
 
 ## Use
 

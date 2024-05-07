@@ -1,3 +1,6 @@
 composer.lock
 .phpunit.result.cache
 vendor
+# docs
+docs/public/*
+!docs/public/.gitkeep
