@@ -2,6 +2,7 @@
 title : "Pathfinder"
 description: ""
 lead: "Lean and fast PHP router"
+cta: "/usage/quick-start/"
 date: 2024-05-06T19:33:08+02:00
 lastmod: 2024-05-06T19:33:08+02:00
 draft: false

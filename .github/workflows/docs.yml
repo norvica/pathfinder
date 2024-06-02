@@ -22,11 +22,11 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Pull builder image
-        run: docker pull ghcr.io/norvica/docs:v0.1.0
+        run: docker pull ghcr.io/norvica/docs:v0.3.0
 
       - name: Build Documentation
         run: |
-          docker run --rm -v $(pwd)/docs/content:/app/content -v $(pwd)/docs/config/_default:/app/config/_default -v $(pwd)/docs/public:/app/public -e HUGO_ENVIRONMENT=production -e HUGO_ENV=production ghcr.io/norvica/docs:v0.1.0 npm run build -- --gc --minify --baseURL "https://router.norvica.dev"
+          docker run --rm -v $(pwd)/docs/content:/app/content -v $(pwd)/docs/config/_default:/app/config/_default -v $(pwd)/docs/public:/app/public -e HUGO_ENVIRONMENT=production -e HUGO_ENV=production ghcr.io/norvica/docs:v0.3.0 npm run build -- --gc --minify --baseURL "https://router.norvica.dev"
 
       - name: Publish
         uses: cloudflare/pages-action@v1
