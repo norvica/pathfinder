@@ -137,4 +137,4 @@ brand = "Norvica"
     #product = [] # Product sections
 
 [add_ons]
-  cloudflareAnalyticsToken = "6a24784e19614623999cc7a68f094afe"
+  plausibleDomain = "router.norvica.dev"
