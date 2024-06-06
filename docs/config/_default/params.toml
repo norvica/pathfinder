@@ -137,4 +137,4 @@ brand = "Norvica"
     #product = [] # Product sections
 
 [add_ons]
-  plausibleDomain = "router.norvica.dev"
+  plausibleDomain = "norvica.dev"
